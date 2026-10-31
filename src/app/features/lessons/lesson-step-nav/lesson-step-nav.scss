@@ -1,0 +1,70 @@
+.steps {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // Small screens: a horizontal, scrollable strip above the content.
+  @media (max-width: 63.99rem) {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    scroll-snap-type: x proximity;
+
+    li {
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+  }
+}
+
+.steps__button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 2.5rem;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 63.99rem) {
+    border-color: var(--color-border);
+    white-space: nowrap;
+  }
+}
+
+.steps__button--current {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+
+  .steps__number {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}
+
+.steps__number {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-3);
+  font-size: var(--font-size-xs);
+}

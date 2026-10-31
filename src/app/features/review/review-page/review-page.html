@@ -1,0 +1,90 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Revisões</h1>
+    <p class="page__lead">
+      Revisão espaçada: cada conceito volta em intervalos cada vez maiores enquanto você acerta, e
+      recomeça do intervalo mais curto quando erra. É assim que o conteúdo passa da memória de curto
+      prazo para a de longo prazo.
+    </p>
+  </header>
+
+  @if (signInRequired()) {
+    <p class="notice notice--info" role="status">
+      Entre na sua conta para registrar as revisões.
+      <a routerLink="/settings">Entrar em Configurações</a>.
+    </p>
+  } @else if (loadError()) {
+    <p class="notice notice--danger" role="alert">
+      Seu progresso salvo não pôde ser lido, então as revisões não serão registradas.
+      <a routerLink="/settings">Resolver em Configurações</a>.
+    </p>
+  }
+
+  @if (current(); as item) {
+    <section class="session" aria-labelledby="session-heading">
+      <p class="eyebrow">
+        Revisão {{ index() + 1 }} de {{ session.length }} · caixa {{ item.box }}
+        @if (item.daysOverdue > 0) {
+          · atrasada há {{ item.daysOverdue }} {{ item.daysOverdue === 1 ? 'dia' : 'dias' }}
+        }
+      </p>
+      <h2 id="session-heading" class="session__title">{{ item.title }}</h2>
+      <p class="field__hint">
+        Na revisão vale a primeira resposta: não há nova tentativa. Dicas continuam disponíveis.
+      </p>
+
+      @if (currentExercise(); as exercise) {
+        <!-- Re-created per concept, so the player state never leaks between reviews. -->
+        @for (key of [item.conceptId]; track key) {
+          <app-exercise-player
+            [exercise]="exercise"
+            [reviewConceptId]="item.conceptId"
+            (answered)="onAnswered($event)"
+          />
+        }
+      }
+
+      @if (outcome(); as message) {
+        <p class="notice notice--info" role="status">{{ message }}</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn--primary" (click)="next()">
+            {{ index() + 1 < session.length ? 'Próxima revisão' : 'Concluir sessão' }}
+          </button>
+        </div>
+      }
+    </section>
+  } @else if (session.length > 0) {
+    <section class="panel done" aria-labelledby="done-heading">
+      <h2 id="done-heading" class="panel__title done__title">
+        <svg lucideCircleCheck aria-hidden="true"></svg>
+        Sessão concluída
+      </h2>
+      <p>
+        Você lembrou de {{ correctCount() }} de {{ session.length }}
+        {{ session.length === 1 ? 'conceito' : 'conceitos' }}. As próximas datas estão na agenda
+        abaixo.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" routerLink="/">Voltar à central de comando</a>
+      </div>
+    </section>
+  } @else if (hasCards()) {
+    <section class="panel" aria-labelledby="none-due-heading">
+      <h2 id="none-due-heading" class="panel__title">Nenhuma revisão vencida hoje</h2>
+      <p class="muted">
+        Todos os conceitos estão em dia. A próxima revisão aparece na agenda abaixo.
+      </p>
+    </section>
+  } @else {
+    <section class="panel empty" aria-labelledby="empty-heading">
+      <svg lucideInbox class="empty__icon" aria-hidden="true"></svg>
+      <h2 id="empty-heading" class="panel__title">Nenhum conceito em revisão ainda</h2>
+      <p class="muted">
+        Um conceito entra em revisão quando você acerta pela primeira vez um exercício sobre ele.
+        Comece pela <a routerLink="/">próxima atividade recomendada</a>.
+      </p>
+    </section>
+  }
+
+  <app-review-schedule [upcoming]="upcoming()" [intervals]="intervals" />
+</div>

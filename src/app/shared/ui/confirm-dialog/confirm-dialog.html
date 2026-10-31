@@ -1,0 +1,17 @@
+<dialog
+  #dialog
+  class="confirm"
+  role="alertdialog"
+  [attr.aria-labelledby]="id + '-heading'"
+  [attr.aria-describedby]="id + '-message'"
+  (close)="closed()"
+>
+  <div class="confirm__icon" aria-hidden="true"><svg lucideTriangleAlert></svg></div>
+  <h2 [id]="id + '-heading'" class="confirm__heading">{{ heading() }}</h2>
+  <p [id]="id + '-message'" class="confirm__message">{{ message() }}</p>
+  <div class="btn-row confirm__actions">
+    <!-- Cancel comes first so it gets initial focus: the safe choice is the default. -->
+    <button type="button" class="btn" autofocus (click)="cancel()">Cancelar</button>
+    <button type="button" class="btn btn--danger" (click)="confirm()">{{ confirmLabel() }}</button>
+  </div>
+</dialog>

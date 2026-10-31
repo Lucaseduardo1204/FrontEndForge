@@ -1,0 +1,151 @@
+@if (report(); as r) {
+  <div class="page">
+    <a class="back" routerLink="/profile">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar às competências
+    </a>
+
+    <header class="page__header">
+      <p class="eyebrow">Competência</p>
+      <h1>{{ r.competency.title }}</h1>
+      <p class="page__lead">{{ r.competency.description }}</p>
+      <app-level-meter [level]="r.level" />
+    </header>
+
+    @if (r.exercisesAvailable === 0) {
+      <p class="panel muted">
+        Ainda não há exercícios publicados para esta competência, então não há como estimar o nível.
+        Ela aparece na trilha nas fases que ainda estão em produção.
+      </p>
+    } @else {
+      <div class="grid">
+        <section class="panel" aria-labelledby="evidence-heading">
+          <h2 id="evidence-heading" class="panel__title">Evidências</h2>
+          <dl class="evidence">
+            <div>
+              <dt>Exercícios resolvidos</dt>
+              <dd>{{ r.evidence.solved }} de {{ r.exercisesAvailable }}</dd>
+            </div>
+            <div>
+              <dt>Resolvidos sem ajuda</dt>
+              <dd>{{ r.evidence.independent }}</dd>
+            </div>
+            @if (r.evidence.assessmentsTotal > 0) {
+              <div>
+                <dt>Avaliações de lição</dt>
+                <dd>{{ r.evidence.assessmentsSolved }} de {{ r.evidence.assessmentsTotal }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Acerto recente</dt>
+              <dd>
+                @if (r.evidence.recentAccuracy !== null) {
+                  {{ r.evidence.recentAccuracy | percent }}
+                  <span class="muted">({{ r.evidence.recentAttempts }} tentativas)</span>
+                } @else {
+                  Sem tentativas
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Maior caixa na revisão</dt>
+              <dd>
+                {{
+                  r.evidence.highestBox > 0
+                    ? r.evidence.highestBox + ' de 5'
+                    : 'Nenhum conceito em revisão'
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt>Última atividade</dt>
+              <dd>
+                @if (r.evidence.lastActivity; as last) {
+                  {{ last.title }} ({{ last.correct ? 'certa' : 'errada' }},
+                  {{ last.at | date: "d 'de' MMM" }})
+                } @else {
+                  Nenhuma
+                }
+              </dd>
+            </div>
+          </dl>
+          @if (r.evidence.appliedIn.length > 0) {
+            <h3 class="sub">Aplicada em</h3>
+            <ul class="list">
+              @for (item of r.evidence.appliedIn; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="panel" aria-labelledby="criteria-heading">
+          <h2 id="criteria-heading" class="panel__title">Critérios de cada nível</h2>
+          @for (group of criteriaByLevel(); track group.level) {
+            <h3 class="sub">{{ group.level }} · {{ levelLabels[group.level] }}</h3>
+            <ul class="criteria">
+              @for (criterion of group.criteria; track criterion.text) {
+                <li [class.criteria__met]="criterion.met">
+                  @if (criterion.met) {
+                    <svg lucideCircleCheck size="16" aria-hidden="true"></svg>
+                    <span class="visually-hidden">Cumprido:</span>
+                  } @else {
+                    <svg lucideCircle size="16" aria-hidden="true"></svg>
+                    <span class="visually-hidden">Pendente:</span>
+                  }
+                  {{ criterion.text }}
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+
+      <div class="grid">
+        <section class="panel" aria-labelledby="improve-heading">
+          <h2 id="improve-heading" class="panel__title">Pontos de melhoria</h2>
+          @if (r.improvements.length > 0) {
+            <ul class="list">
+              @for (item of r.improvements; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">Nenhum erro recorrente ou revisão vencida nesta competência.</p>
+          }
+        </section>
+
+        <section class="panel" aria-labelledby="next-heading">
+          <h2 id="next-heading" class="panel__title">Próximas atividades</h2>
+          @if (r.nextActivities.length > 0) {
+            <ul class="list next">
+              @for (item of r.nextActivities; track item.title) {
+                @let target = link(item);
+                <li>
+                  <a [routerLink]="target.commands" [queryParams]="target.queryParams">{{
+                    item.title
+                  }}</a>
+                  <span class="muted">{{ item.reason }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">Você já fez tudo o que está publicado para esta competência.</p>
+          }
+        </section>
+      </div>
+    }
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Competência não encontrada</h1>
+      <p class="page__lead">
+        Não existe uma competência com o identificador “{{ competencyId() }}”.
+      </p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/profile">Ver as competências</a>
+    </div>
+  </section>
+}

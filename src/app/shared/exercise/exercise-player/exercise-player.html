@@ -1,0 +1,93 @@
+@let ex = exercise();
+<article class="exercise" [attr.aria-labelledby]="ex.id + '-title'">
+  <header class="exercise__header">
+    <div>
+      <p class="eyebrow">{{ kindLabel() }}</p>
+      <h3 class="exercise__title" [id]="ex.id + '-title'">{{ ex.title }}</h3>
+    </div>
+    @if (reviewConceptId()) {
+      <!-- Practice status is hidden in reviews: only this answer counts now. -->
+    } @else if (status().solved) {
+      <span class="badge badge--success">
+        <svg lucideCircleCheck size="14" aria-hidden="true"></svg>
+        Resolvido
+      </span>
+    } @else if (status().attempts > 0) {
+      <span class="badge">
+        {{ status().attempts }} {{ status().attempts === 1 ? 'tentativa' : 'tentativas' }}
+      </span>
+    }
+  </header>
+
+  <app-content-blocks [blocks]="ex.prompt" />
+
+  @switch (ex.kind) {
+    @case ('multiple-choice') {
+      <app-choice-input [exercise]="ex" [disabled]="locked()" [(selected)]="selected" />
+    }
+    @case ('predict-output') {
+      <app-predict-input [exercise]="ex" [disabled]="locked()" [(text)]="text" />
+    }
+    @case ('order-steps') {
+      <app-order-input [exercise]="ex" [disabled]="locked()" [(order)]="order" />
+    }
+    @case ('code') {
+      <p class="notice notice--info">
+        Este é um exercício de código. Ele roda no laboratório, em um ambiente isolado do resto da
+        plataforma.
+      </p>
+      <a class="btn btn--primary lab-link" [routerLink]="['/lab', ex.id]"
+        >Resolver no laboratório</a
+      >
+    }
+  }
+
+  @if (ex.kind !== 'code') {
+    <div class="btn-row">
+      @if (evaluation()) {
+        <!-- In a review the first answer is what counts, so there is no retry. -->
+        @if (!reviewConceptId()) {
+          <button type="button" class="btn" (click)="tryAgain()">
+            <svg lucideRotateCcw aria-hidden="true"></svg>
+            {{ evaluation()?.correct ? 'Responder de novo' : 'Tentar novamente' }}
+          </button>
+        }
+      } @else {
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="!answer() || saving()"
+          [attr.aria-busy]="saving()"
+          (click)="submit()"
+        >
+          {{ saving() ? 'Verificando…' : 'Verificar resposta' }}
+        </button>
+      }
+    </div>
+  }
+
+  <div aria-live="polite">
+    @if (evaluation(); as result) {
+      <app-exercise-feedback [evaluation]="result" />
+    }
+    @if (reward(); as earned) {
+      <app-reward-notice [reward]="earned" />
+    }
+  </div>
+  <div role="alert">
+    @if (saveError(); as error) {
+      <p class="notice notice--danger">{{ error }}</p>
+    }
+  </div>
+
+  <app-hints-solution
+    [exerciseId]="ex.id"
+    [hints]="ex.hints"
+    [hintsShown]="hintsShown()"
+    [solution]="ex.solution"
+    [unlocked]="solutionUnlocked()"
+    [requested]="solutionRequested()"
+    (hintRequested)="showHint()"
+    (solutionRequested)="requestSolution()"
+  />
+</article>

@@ -1,0 +1,61 @@
+@if (entry(); as e) {
+  <div class="page">
+    <a class="back" routerLink="/library">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar à biblioteca
+    </a>
+
+    <header class="page__header">
+      <p class="eyebrow">
+        {{ kindLabels[e.kind] }} · {{ technologyLabels[e.technology] }} ·
+        {{ difficultyLabels[e.difficulty] }}
+      </p>
+      <h1>{{ e.title }}</h1>
+      <p class="page__lead">{{ e.summary }}</p>
+    </header>
+
+    <app-content-blocks [blocks]="e.body" />
+
+    <section class="panel" aria-labelledby="references-heading">
+      <h2 id="references-heading" class="panel__title">Documentação oficial</h2>
+      <ul class="links">
+        @for (ref of e.references; track ref.url) {
+          <li>
+            <a [href]="ref.url" target="_blank" rel="noopener noreferrer">
+              {{ ref.title }}
+              <svg lucideExternalLink size="14" aria-hidden="true"></svg>
+              <span class="visually-hidden">(abre em nova aba)</span>
+            </a>
+            @if (ref.language === 'en') {
+              <span class="muted"> · em inglês</span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (related().length > 0) {
+      <section class="panel" aria-labelledby="related-heading">
+        <h2 id="related-heading" class="panel__title">Pratique na plataforma</h2>
+        <ul class="links">
+          @for (item of related(); track item.link.id) {
+            <li>
+              <span class="badge">{{ relatedLabels[item.link.type] }}</span>
+              <a [routerLink]="item.commands">{{ item.title }}</a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Entrada não encontrada</h1>
+      <p class="page__lead">Não existe uma entrada com o identificador “{{ entryId() }}”.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/library">Ver a biblioteca</a>
+    </div>
+  </section>
+}

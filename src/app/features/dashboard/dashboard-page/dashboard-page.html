@@ -1,0 +1,64 @@
+<div class="page">
+  <header class="page__header">
+    <h1>{{ greeting }}!</h1>
+    <p class="page__lead">
+      @if (hasHistory()) {
+        Continue de onde parou. Tudo nesta tela vem do seu progresso salvo neste navegador.
+      } @else {
+        Esta é a sua central de comando. Ela vai mostrar o que você estudou, onde errou e o que
+        fazer em seguida, sempre a partir do seu histórico real.
+      }
+    </p>
+  </header>
+
+  @if (signInRequired()) {
+    <p class="notice notice--info" role="status">
+      <span>
+        Entre na sua conta para carregar e salvar o progresso.
+        <a routerLink="/settings">Entrar em Configurações</a>.
+      </span>
+    </p>
+  } @else if (loadError()) {
+    <p class="notice notice--danger" role="alert">
+      <svg lucideCircleAlert aria-hidden="true"></svg>
+      <span>
+        Não foi possível ler o seu progresso salvo, e nada novo está sendo salvo até isso ser
+        resolvido. <a routerLink="/settings">Resolver em Configurações</a>.
+      </span>
+    </p>
+  }
+
+  <app-next-activity-card [activity]="next()" />
+  <p class="map-link">
+    <a routerLink="/academy">Ver a trilha completa com as 14 fases</a>
+  </p>
+
+  @if (hasHistory()) {
+    <div class="dashboard-grid">
+      <div class="dashboard-column">
+        <app-progress-summary [stats]="stats()" />
+        <app-learning-status [reviews]="reviews()" [struggling]="struggling()" />
+      </div>
+      <div class="dashboard-column">
+        <app-evolution-summary
+          [level]="gamification.level()"
+          [streak]="gamification.streak()"
+          [unlocked]="unlockedAchievements()"
+          [total]="gamification.achievements().length"
+        />
+        @if (recent().length > 0) {
+          <app-recent-activity [items]="recent()" />
+        }
+      </div>
+    </div>
+  } @else {
+    <section class="panel empty" aria-labelledby="empty-heading">
+      <svg lucideInbox class="empty__icon" aria-hidden="true"></svg>
+      <h2 id="empty-heading" class="panel__title">Nenhuma atividade registrada ainda</h2>
+      <p class="empty__text">
+        Seu progresso, os exercícios resolvidos e a atividade recente aparecem aqui depois que você
+        começar a primeira lição. Nada é preenchido com dados de exemplo.
+      </p>
+    </section>
+  }
+</div>

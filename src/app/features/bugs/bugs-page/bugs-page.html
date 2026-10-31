@@ -1,0 +1,47 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Bestiário de bugs</h1>
+    <p class="page__lead">
+      Bugs reais e frequentes, para você aprender a investigar. Em cada um, leia o sintoma e o
+      código, faça o diagnóstico, e só então veja a causa, a correção e como evitar.
+    </p>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtrar por tecnologia">
+    @for (option of filters(); track option) {
+      <button
+        type="button"
+        class="filter"
+        [attr.aria-pressed]="filter() === option"
+        (click)="filter.set(option)"
+      >
+        {{ label(option) }}
+      </button>
+    }
+  </div>
+  <p class="visually-hidden" aria-live="polite">{{ items().length }} bugs na lista</p>
+
+  <ul class="bugs">
+    @for (item of items(); track item.bug.id) {
+      <li class="panel bug">
+        <p class="eyebrow">
+          {{ technologyLabels[item.bug.technology] }} ·
+          {{ difficultyLabels[item.bug.difficulty] }}
+        </p>
+        <h2 class="bug__title">
+          <a [routerLink]="['/bugs', item.bug.id]">{{ item.bug.title }}</a>
+        </h2>
+        <p class="bug__symptom">{{ item.bug.symptom }}</p>
+        <p class="bug__status">
+          @if (item.diagnosed) {
+            <span class="badge badge--success">Diagnosticado</span>
+          } @else if (item.attempted) {
+            <span class="badge">Diagnóstico tentado</span>
+          } @else {
+            <span class="badge">Não investigado</span>
+          }
+        </p>
+      </li>
+    }
+  </ul>
+</div>

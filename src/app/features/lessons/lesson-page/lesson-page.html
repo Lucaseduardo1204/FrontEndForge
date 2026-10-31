@@ -1,0 +1,109 @@
+@if (lesson(); as lesson) {
+  <div class="page">
+    <header class="page__header">
+      @if (context(); as ctx) {
+        <p class="eyebrow">
+          <a class="crumb" [routerLink]="['/academy/phases', ctx.phase.id]">
+            Fase {{ ctx.phase.order }} · {{ ctx.phase.title }}
+          </a>
+          › {{ ctx.module.title }}
+        </p>
+      }
+      <h1>{{ lesson.title }}</h1>
+      <p class="page__lead">{{ lesson.summary }}</p>
+      <p class="meta">
+        <span class="meta__item">
+          <svg lucideClock size="16" aria-hidden="true"></svg>
+          Cerca de {{ lesson.estimatedMinutes }} min
+        </span>
+        <span class="meta__item">{{ difficultyLabels[lesson.difficulty] }}</span>
+        @if (completedAt()) {
+          <span class="badge badge--success">Concluída</span>
+        }
+      </p>
+    </header>
+
+    @if (saveError(); as error) {
+      <p class="notice notice--danger" role="alert">
+        {{ error }}
+        @if (error.includes('Configurações')) {
+          <a routerLink="/settings">Abrir configurações</a>
+        }
+      </p>
+    }
+
+    <div class="lesson">
+      <app-lesson-step-nav
+        class="lesson__nav"
+        [steps]="lesson.steps"
+        [current]="stepIndex()"
+        [solvedSteps]="solvedSteps()"
+        (selected)="goTo($event)"
+      />
+
+      @if (currentStep(); as step) {
+        <section class="lesson__step" aria-labelledby="step-heading">
+          <p class="eyebrow">
+            Etapa {{ stepIndex() + 1 }} de {{ lesson.steps.length }} ·
+            {{ stepKindLabels[step.kind] }}
+          </p>
+          <h2 id="step-heading" class="lesson__step-title" tabindex="-1" #stepHeading>
+            {{ step.title }}
+          </h2>
+
+          <app-content-blocks [blocks]="step.blocks" />
+
+          @for (exercise of stepExercises(); track exercise.id) {
+            <app-exercise-player [exercise]="exercise" />
+          }
+
+          @if (isLastStep()) {
+            <app-lesson-completion
+              [remaining]="remainingAssessment()"
+              [completedAt]="completedAt()"
+              [busy]="completing()"
+              (complete)="complete()"
+              (goToAssessment)="goToAssessment()"
+            />
+            <div aria-live="polite">
+              @if (reward(); as earned) {
+                <app-reward-notice [reward]="earned" />
+              }
+            </div>
+          }
+
+          <nav class="pager" aria-label="Navegação entre etapas">
+            @if (stepIndex() > 0) {
+              <button type="button" class="btn" (click)="goTo(stepIndex() - 1)">
+                <svg lucideChevronLeft aria-hidden="true"></svg>
+                Etapa anterior
+              </button>
+            }
+            @if (!isLastStep()) {
+              <button
+                type="button"
+                class="btn btn--primary pager__next"
+                (click)="goTo(stepIndex() + 1)"
+              >
+                Próxima: {{ lesson.steps[stepIndex() + 1].title }}
+                <svg lucideChevronRight aria-hidden="true"></svg>
+              </button>
+            }
+          </nav>
+        </section>
+      }
+    </div>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Lição não encontrada</h1>
+      <p class="page__lead">
+        Não existe uma lição com o identificador “{{ lessonId() }}”. O link pode estar incorreto.
+      </p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/">Ir para a central de comando</a>
+    </div>
+  </section>
+}

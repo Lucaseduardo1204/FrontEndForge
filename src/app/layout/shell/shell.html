@@ -1,0 +1,57 @@
+<button type="button" class="skip-link btn btn--primary" (click)="skipToContent()">
+  Pular para o conteúdo
+</button>
+
+<div class="shell">
+  <aside class="shell__sidebar" aria-label="Barra lateral">
+    <ng-container [ngTemplateOutlet]="brand" />
+    <app-sidebar-nav [sections]="sections" navId="sidebar-nav" />
+  </aside>
+
+  <div class="shell__body">
+    <app-header
+      [pageTitle]="pageTitle()"
+      [theme]="theme()"
+      [menuExpanded]="menuOpen()"
+      (menuRequested)="openMenu()"
+      (themeToggled)="toggleTheme()"
+    />
+    <main #main id="main-content" class="shell__main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<!-- Backdrop click is a pointer shortcut only; keyboard users close with Escape or "Fechar menu". -->
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<dialog
+  #drawer
+  id="nav-drawer"
+  class="drawer"
+  aria-label="Menu de navegação"
+  (close)="menuOpen.set(false)"
+  (click)="onDrawerClick($event)"
+>
+  <div class="drawer__panel">
+    <div class="drawer__top">
+      <ng-container [ngTemplateOutlet]="brand" />
+      <button
+        type="button"
+        class="btn btn--ghost btn--icon"
+        aria-label="Fechar menu"
+        autofocus
+        (click)="closeMenu()"
+      >
+        <svg lucideX aria-hidden="true"></svg>
+      </button>
+    </div>
+    <app-sidebar-nav [sections]="sections" navId="drawer-nav" (navigated)="closeMenu()" />
+  </div>
+</dialog>
+
+<ng-template #brand>
+  <a class="brand" routerLink="/" (click)="closeMenu()">
+    <span class="brand__mark" aria-hidden="true"><svg lucideHammer size="18"></svg></span>
+    <span class="brand__name">Frontend Forge</span>
+  </a>
+</ng-template>

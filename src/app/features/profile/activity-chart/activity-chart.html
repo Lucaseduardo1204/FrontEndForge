@@ -1,0 +1,108 @@
+@if (hasData()) {
+  <div class="legend" aria-hidden="true">
+    <span class="legend__item"><span class="swatch swatch--correct"></span>Respostas certas</span>
+    <span class="legend__item"
+      ><span class="swatch swatch--incorrect"></span>Respostas erradas</span
+    >
+  </div>
+  <p class="readout">{{ readout() }}</p>
+
+  <svg
+    class="chart"
+    [attr.viewBox]="'0 0 ' + width() + ' ' + height"
+    role="group"
+    aria-label="Respostas certas e erradas por semana"
+    (mouseleave)="active.set(null)"
+  >
+    @for (line of gridlines(); track line.value) {
+      <line
+        class="grid"
+        [attr.x1]="left"
+        [attr.x2]="right()"
+        [attr.y1]="line.y"
+        [attr.y2]="line.y"
+      />
+      <text class="axis" [attr.x]="left - 6" [attr.y]="line.y + 4" text-anchor="end">
+        {{ line.value }}
+      </text>
+    }
+
+    @for (bar of bars(); track bar.week.weekStart; let i = $index) {
+      <g
+        class="column"
+        [class.column--active]="active() === i"
+        tabindex="0"
+        role="img"
+        [attr.aria-label]="bar.description"
+        (mouseenter)="active.set(i)"
+        (focus)="active.set(i)"
+        (blur)="active.set(null)"
+      >
+        <!-- Hit target: the whole column, larger than the marks. -->
+        <rect
+          class="hit"
+          [attr.x]="bar.slotX"
+          y="0"
+          [attr.width]="bar.slotWidth"
+          [attr.height]="height"
+        />
+        @if (bar.correctPath) {
+          <path class="mark mark--correct" [attr.d]="bar.correctPath" />
+        }
+        @if (bar.incorrectPath) {
+          <path class="mark mark--incorrect" [attr.d]="bar.incorrectPath" />
+        }
+        @if (bar.total > 0) {
+          <text
+            class="value"
+            [attr.x]="bar.center"
+            [attr.y]="bar.totalTop - 6"
+            text-anchor="middle"
+          >
+            {{ bar.total }}
+          </text>
+        }
+        <text class="axis" [attr.x]="bar.center" [attr.y]="height - 8" text-anchor="middle">
+          {{ bar.label }}
+        </text>
+      </g>
+    }
+    <line
+      class="baseline"
+      [attr.x1]="left"
+      [attr.x2]="right()"
+      [attr.y1]="baseline"
+      [attr.y2]="baseline"
+    />
+  </svg>
+
+  <details class="data">
+    <summary>Ver os dados em tabela</summary>
+    <table class="table">
+      <caption class="visually-hidden">
+        Respostas por semana
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Semana de</th>
+          <th scope="col">Certas</th>
+          <th scope="col">Erradas</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bar of bars(); track bar.week.weekStart) {
+          <tr>
+            <th scope="row">{{ bar.label }}</th>
+            <td>{{ bar.week.correct }}</td>
+            <td>{{ bar.week.incorrect }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </details>
+} @else {
+  <p class="empty">
+    Nenhuma resposta registrada nas últimas {{ weeks().length }} semanas. O gráfico aparece assim
+    que você resolver exercícios.
+  </p>
+}

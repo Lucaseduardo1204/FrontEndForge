@@ -1,0 +1,123 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Conquistas e XP</h1>
+    <p class="page__lead">
+      XP, nível e conquistas registram sua dedicação dentro da plataforma. São indicadores
+      motivacionais, não certificado de competência: seu nível técnico depende de avaliações,
+      retenção e aplicação em projetos, e não de pontos.
+    </p>
+  </header>
+
+  <div class="overview">
+    <app-level-progress [level]="level()" />
+
+    <section class="panel" aria-labelledby="streak-heading">
+      <h2 id="streak-heading" class="panel__title title-row">
+        <svg lucideCalendarCheck size="20" aria-hidden="true"></svg>
+        Dias de estudo
+      </h2>
+      <dl class="stats">
+        <div class="stats__item">
+          <dt>Sequência atual</dt>
+          <dd>{{ streak().current }} {{ streak().current === 1 ? 'dia' : 'dias' }}</dd>
+        </div>
+        <div class="stats__item">
+          <dt>Maior sequência</dt>
+          <dd>{{ streak().longest }} {{ streak().longest === 1 ? 'dia' : 'dias' }}</dd>
+        </div>
+      </dl>
+      <p class="muted">
+        @if (streak().current === 0 && streak().longest > 0) {
+          Sua maior sequência continua registrada. Interromper uma sequência não tira XP nem
+          conquistas.
+        } @else if (streak().current > 0 && !streak().studiedToday) {
+          A sequência conta até ontem. Ela não some à meia-noite: continua valendo durante o dia de
+          hoje.
+        } @else {
+          Conta dias com qualquer atividade registrada. Interromper uma sequência não tira XP nem
+          conquistas.
+        }
+      </p>
+    </section>
+  </div>
+
+  <section aria-labelledby="achievements-heading">
+    <h2 id="achievements-heading" class="section-title">
+      Conquistas ({{ unlockedCount() }} de {{ achievements().length }})
+    </h2>
+    <p class="muted section-lead">
+      Todos os critérios são públicos. Não há conquistas secretas, sorteios nem recompensas
+      aleatórias, e uma conquista desbloqueada nunca é retirada.
+    </p>
+    <ul class="achievements">
+      @for (item of achievements(); track item.achievement.id) {
+        <li class="achievement" [class.achievement--unlocked]="item.unlockedAt">
+          <span class="achievement__icon" aria-hidden="true">
+            @if (item.unlockedAt) {
+              <svg lucideAward size="20"></svg>
+            } @else {
+              <svg lucideLock size="18"></svg>
+            }
+          </span>
+          <div class="achievement__body">
+            <h3 class="achievement__title">{{ item.achievement.title }}</h3>
+            <p class="achievement__criteria">{{ item.achievement.criteria }}</p>
+            <p class="achievement__status">
+              @if (item.unlockedAt; as date) {
+                Desbloqueada em {{ date | date: "d 'de' MMMM 'de' y" }}
+              } @else {
+                Ainda não desbloqueada
+              }
+            </p>
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <div class="overview">
+    <section class="panel" aria-labelledby="rules-heading">
+      <h2 id="rules-heading" class="panel__title">Como o XP é calculado</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Atividade</th>
+            <th scope="col">XP</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules; track rule.activity) {
+            <tr>
+              <td>{{ rule.activity }}</td>
+              <td>{{ rule.xp }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" aria-labelledby="history-heading">
+      <h2 id="history-heading" class="panel__title">Histórico de XP</h2>
+      @if (history().length > 0) {
+        <ol class="history">
+          @for (entry of history(); track entry.id) {
+            <li class="history__item">
+              <span class="history__amount">+{{ entry.amount }}</span>
+              <span>
+                {{ entry.reason }}
+                <span class="muted history__date">
+                  · <time [attr.datetime]="entry.at">{{ entry.at | date: 'short' }}</time>
+                </span>
+              </span>
+            </li>
+          }
+        </ol>
+      } @else {
+        <p class="muted">
+          Nenhum XP ainda. Ele aparece aqui, com o motivo, quando você resolve o primeiro exercício.
+          <a routerLink="/">Ver a próxima atividade</a>.
+        </p>
+      }
+    </section>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Competências</h1>
+    <p class="page__lead">
+      Uma estimativa do seu nível em cada área, calculada a partir de evidências registradas aqui:
+      exercícios resolvidos (e se foi sem ajuda), avaliações, retenção nas revisões e uso em
+      projetos e missões. Concluir conteúdo, sozinho, não aumenta o nível.
+    </p>
+    <p class="notice notice--info">
+      É uma estimativa para orientar seus estudos, não um certificado. Ela só considera o que você
+      fez nesta plataforma.
+    </p>
+  </header>
+
+  <section class="panel" aria-labelledby="levels-heading">
+    <h2 id="levels-heading" class="panel__title">Como os níveis funcionam</h2>
+    <ol class="levels">
+      <li>
+        <strong>{{ levelLabels[1] }}:</strong> acertou ao menos um exercício.
+      </li>
+      <li>
+        <strong>{{ levelLabels[2] }}:</strong> resolveu até 3 exercícios da área, ao menos um sem
+        dicas e sem pedir a solução.
+      </li>
+      <li>
+        <strong>{{ levelLabels[3] }}:</strong> lembrou de um conceito em duas revisões seguidas
+        (caixa 3) e acerta ao menos 70% das tentativas recentes.
+      </li>
+      <li>
+        <strong>{{ levelLabels[4] }}:</strong> usou a área num projeto ou missão concluídos.
+      </li>
+    </ol>
+    <p class="muted">
+      Cada nível exige também os anteriores. Se você esquecer um conceito numa revisão, o nível pode
+      baixar: ele reflete o que você demonstra hoje.
+    </p>
+  </section>
+
+  <section aria-labelledby="areas-heading" class="section">
+    <h2 id="areas-heading" class="section__title">Suas áreas</h2>
+    <ul class="areas">
+      @for (report of assessable(); track report.competency.id) {
+        <li class="panel area">
+          <h3 class="area__title">
+            <a [routerLink]="['/profile', report.competency.id]">{{ report.competency.title }}</a>
+          </h3>
+          <app-level-meter [level]="report.level" />
+          <p class="muted">
+            {{ report.evidence.solved }} de {{ report.exercisesAvailable }} exercícios resolvidos
+            @if (report.improvements.length > 0) {
+              · {{ report.improvements.length }}
+              {{ report.improvements.length === 1 ? 'ponto de atenção' : 'pontos de atenção' }}
+            }
+          </p>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="activity-heading">
+    <h2 id="activity-heading" class="panel__title">Atividade nas últimas semanas</h2>
+    <app-activity-chart [weeks]="weeks()" />
+  </section>
+
+  @if (upcoming().length > 0) {
+    <section class="panel" aria-labelledby="upcoming-heading">
+      <h2 id="upcoming-heading" class="panel__title">Áreas sem atividades publicadas ainda</h2>
+      <p class="muted">
+        {{ upcoming().length }} áreas ainda não têm exercícios na plataforma, então não há como
+        estimar o nível delas: {{ upcomingTitles() }}.
+      </p>
+    </section>
+  }
+</div>

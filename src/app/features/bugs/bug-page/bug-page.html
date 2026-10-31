@@ -1,0 +1,113 @@
+@if (bug(); as b) {
+  <div class="page">
+    <a class="back" routerLink="/bugs">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar ao bestiário
+    </a>
+
+    <header class="page__header">
+      <p class="eyebrow">
+        {{ technologyLabels[b.technology] }} · {{ difficultyLabels[b.difficulty] }}
+      </p>
+      <div class="title-row">
+        <h1>{{ b.title }}</h1>
+        @if (diagnosisStatus()?.solved) {
+          <span class="badge badge--success">Diagnosticado</span>
+        }
+      </div>
+    </header>
+
+    <section class="symptom" aria-labelledby="symptom-heading">
+      <h2 id="symptom-heading" class="symptom__title">
+        <svg lucideBug size="18" aria-hidden="true"></svg>
+        Sintoma
+      </h2>
+      <p>{{ b.symptom }}</p>
+    </section>
+
+    <section class="section" aria-labelledby="code-heading">
+      <h2 id="code-heading" class="section__title">Código problemático</h2>
+      <app-content-blocks [blocks]="codeBlocks()" />
+    </section>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="repro-heading">
+        <h2 id="repro-heading" class="panel__title">Como reproduzir</h2>
+        <ol class="list">
+          @for (step of b.reproduction; track step) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+      </section>
+      <section class="panel" aria-labelledby="investigate-heading">
+        <h2 id="investigate-heading" class="panel__title">Como investigar</h2>
+        <ol class="list">
+          @for (step of b.investigation; track step) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+      </section>
+    </div>
+
+    @if (diagnosis(); as exercise) {
+      <section class="section" aria-labelledby="diagnosis-heading">
+        <h2 id="diagnosis-heading" class="section__title">Seu diagnóstico</h2>
+        <p class="muted">
+          Antes de ver a causa, faça o diagnóstico. Errar aqui não tem problema: a explicação de
+          cada resposta já mostra o caminho.
+        </p>
+        <app-exercise-player [exercise]="exercise" />
+      </section>
+    }
+
+    <section class="section reveal" aria-labelledby="cause-heading">
+      <h2 id="cause-heading" class="section__title title-row">
+        @if (!revealed()) {
+          <svg lucideLock size="20" aria-hidden="true"></svg>
+        }
+        Causa, correção e prevenção
+      </h2>
+      @if (revealed()) {
+        <div class="panel">
+          <h3 class="sub">Causa real</h3>
+          <app-content-blocks [blocks]="b.rootCause" />
+        </div>
+        <div class="panel">
+          <h3 class="sub">Correção</h3>
+          <app-content-blocks [blocks]="b.fix" />
+        </div>
+        <div class="panel">
+          <h3 class="sub">Como evitar que se repita</h3>
+          <ul class="list">
+            @for (item of b.prevention; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="muted">
+          A causa aparece depois da sua primeira tentativa de diagnóstico. Tentar antes de ler a
+          resposta é o que treina a investigação.
+        </p>
+        <button
+          type="button"
+          class="btn btn--ghost reveal__button"
+          (click)="revealRequested.set(true)"
+        >
+          <svg lucideEye aria-hidden="true"></svg>
+          Ver a causa sem diagnosticar
+        </button>
+      }
+    </section>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Bug não encontrado</h1>
+      <p class="page__lead">Não existe uma entrada com o identificador “{{ bugId() }}”.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/bugs">Ver o bestiário</a>
+    </div>
+  </section>
+}

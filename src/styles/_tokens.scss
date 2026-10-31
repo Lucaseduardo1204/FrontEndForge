@@ -1,0 +1,130 @@
+// Design tokens. Components use these custom properties only, never raw values.
+// Dark (deep graphite) is the default; light is applied with [data-theme='light'].
+// One accent color ("forge amber"), used sparingly: primary actions, current item, focus.
+
+:root {
+  // Surfaces, from the page background up to raised elements.
+  --color-bg: #111317;
+  --color-surface-1: #171a1f;
+  --color-surface-2: #1e2228;
+  --color-surface-3: #272c33;
+  --color-border: #2e343c;
+  --color-border-strong: #424a54;
+
+  --color-text: #e6e8eb;
+  --color-text-muted: #a3aab4;
+  --color-text-subtle: #8a929d;
+
+  --color-accent: #f5a524;
+  --color-accent-hover: #ffb84a;
+  --color-accent-text: #ffbf5c; // accent used as text on dark surfaces
+  --color-on-accent: #17130b;
+  --color-accent-soft: rgb(245 165 36 / 12%);
+
+  --color-success: #4cc38a;
+  --color-success-soft: rgb(76 195 138 / 12%);
+  --color-danger: #f2777a;
+  --color-danger-soft: rgb(242 119 122 / 12%);
+  --color-info: #7cb7ff;
+  --color-info-soft: rgb(124 183 255 / 12%);
+
+  --color-focus: var(--color-accent);
+  --color-overlay: rgb(5 6 8 / 65%);
+
+  // Chart series (categorical slots 1–2, validated for CVD and contrast on this surface).
+  --chart-series-1: #3987e5;
+  --chart-series-2: #d95926;
+
+  // Typography. System stacks: no external font service is required.
+  --font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 650;
+  --line-height-tight: 1.25;
+  --line-height-base: 1.6;
+
+  // Spacing scale (4px base).
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 35%);
+  --shadow-lg: 0 12px 40px rgb(0 0 0 / 45%);
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --sidebar-width: 17rem;
+  --header-height: 3.5rem;
+  --content-max-width: 72rem;
+  --reading-max-width: 46rem;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --color-bg: #f5f6f8;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f0f2f5;
+  --color-surface-3: #e4e7ec;
+  --color-border: #dadee5;
+  --color-border-strong: #b9c0ca;
+
+  --color-text: #15181d;
+  --color-text-muted: #4b535e;
+  --color-text-subtle: #5f6874;
+
+  --color-accent: #f5a524;
+  --color-accent-hover: #e8961a;
+  --color-accent-text: #8a5300;
+  --color-on-accent: #17130b;
+  --color-accent-soft: rgb(245 165 36 / 16%);
+
+  --color-success: #1b7f4f;
+  --color-success-soft: rgb(27 127 79 / 10%);
+  --color-danger: #b42318;
+  --color-danger-soft: rgb(180 35 24 / 8%);
+  --color-info: #1f5fbf;
+  --color-info-soft: rgb(31 95 191 / 8%);
+
+  --color-focus: #b86e00;
+  --color-overlay: rgb(15 18 22 / 45%);
+
+  --chart-series-1: #2a78d6;
+  --chart-series-2: #eb6834;
+
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 8%);
+  --shadow-md: 0 4px 16px rgb(16 24 40 / 10%);
+  --shadow-lg: 0 12px 40px rgb(16 24 40 / 16%);
+
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}

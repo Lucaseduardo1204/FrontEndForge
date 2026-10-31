@@ -1,0 +1,59 @@
+.data-actions {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.data-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+
+  h3 {
+    font-size: var(--font-size-md);
+  }
+
+  .field__hint {
+    flex: 1;
+  }
+}
+
+.file-input {
+  // Native file inputs have a wide intrinsic size. A percentage width stops it from setting
+  // the minimum width of the page column (it pushed /settings past 320px).
+  width: 100%;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+
+  &::file-selector-button {
+    margin-right: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-3);
+    color: var(--color-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  &[aria-invalid='true']::file-selector-button {
+    border-color: var(--color-danger);
+  }
+}
+
+// Collapses the panel gap while both live regions are empty.
+.feedback {
+  margin-top: calc(-1 * var(--space-4));
+
+  .notice {
+    margin-top: var(--space-4);
+  }
+}

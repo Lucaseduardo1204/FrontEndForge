@@ -1,0 +1,35 @@
+.dashboard-grid {
+  display: grid;
+  gap: var(--space-5);
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+}
+
+.empty {
+  justify-items: start;
+}
+
+.empty__icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-text-subtle);
+}
+
+.empty__text {
+  max-width: var(--reading-max-width);
+  color: var(--color-text-muted);
+}
+
+.map-link {
+  margin-top: calc(-1 * var(--space-4));
+  font-size: var(--font-size-sm);
+}
+
+.dashboard-column {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}

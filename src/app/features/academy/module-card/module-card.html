@@ -1,0 +1,79 @@
+@let m = module();
+@let s = state();
+<article class="panel module" [attr.aria-labelledby]="m.id + '-title'">
+  <header class="module__header">
+    <h3 class="module__title" [id]="m.id + '-title'">{{ m.title }}</h3>
+    <app-status-badge [status]="s.status" />
+  </header>
+  <p class="module__summary">{{ m.summary }}</p>
+
+  @if (s.status === 'locked') {
+    <p class="notice notice--info">
+      Bloqueado até você concluir: {{ s.blockers.join(', ') }}. O bloqueio é uma orientação de ordem
+      de estudo, baseada nos pré-requisitos.
+    </p>
+  }
+
+  <div class="module__grid">
+    <section>
+      <h4 class="module__label">Objetivos</h4>
+      <ul class="module__list">
+        @for (objective of m.objectives; track objective) {
+          <li>{{ objective }}</li>
+        }
+      </ul>
+    </section>
+    <section>
+      <h4 class="module__label">Pré-requisitos</h4>
+      @if (prerequisites().length > 0) {
+        <ul class="module__list">
+          @for (title of prerequisites(); track title) {
+            <li>{{ title }}</li>
+          }
+        </ul>
+      } @else {
+        <p class="module__muted">Nenhum além das fases anteriores.</p>
+      }
+      <h4 class="module__label">Competências</h4>
+      <p class="module__muted">{{ competencies().join(', ') }}</p>
+    </section>
+  </div>
+
+  <section>
+    <h4 class="module__label">
+      Lições ({{ s.lessonsCompleted }} de {{ s.lessonsTotal }} concluídas)
+    </h4>
+    <ol class="lessons">
+      @for (item of lessons(); track item.lesson.id) {
+        <li class="lessons__item">
+          <span class="lessons__text">
+            @if (s.status === 'locked') {
+              <span class="lessons__title">{{ item.lesson.title }}</span>
+            } @else {
+              <a class="lessons__title" [routerLink]="['/lessons', item.lesson.id]">
+                {{ item.lesson.title }}
+              </a>
+            }
+            <span class="lessons__meta">
+              <svg lucideClock size="14" aria-hidden="true"></svg>
+              {{ item.lesson.estimatedMinutes }} min · {{ item.lesson.steps.length }} etapas ·
+              avaliação com {{ item.assessmentExercises }} exercícios
+            </span>
+          </span>
+          <span class="badge" [class.badge--success]="item.status === 'completed'">
+            {{ lessonStatusLabels[item.status] }}
+          </span>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section>
+    <h4 class="module__label">Critérios de conclusão</h4>
+    <ul class="module__list">
+      @for (criterion of m.completionCriteria; track criterion) {
+        <li>{{ criterion }}</li>
+      }
+    </ul>
+  </section>
+</article>

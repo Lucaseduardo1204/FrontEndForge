@@ -1,0 +1,96 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Biblioteca técnica</h1>
+    <p class="page__lead">
+      Consulta rápida: conceitos, comparações, glossário, atalhos, padrões e boas práticas, sempre
+      com links para a documentação oficial e para onde praticar na plataforma.
+    </p>
+  </header>
+
+  <form class="filters" role="search" (submit)="$event.preventDefault()">
+    <div class="field filters__search">
+      <label class="field__label" for="library-search">Buscar</label>
+      <div class="search-box">
+        <svg lucideSearch size="18" aria-hidden="true"></svg>
+        <input
+          id="library-search"
+          type="search"
+          autocomplete="off"
+          placeholder="Ex.: closure, defer, contraste"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label class="field__label" for="library-technology">Tecnologia</label>
+      <select
+        id="library-technology"
+        class="select"
+        [value]="technology()"
+        (change)="technology.set($any($event.target).value)"
+      >
+        <option value="">Todas</option>
+        @for (option of technologies; track option) {
+          <option [value]="option">{{ technologyLabels[option] }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label class="field__label" for="library-kind">Tipo</label>
+      <select
+        id="library-kind"
+        class="select"
+        [value]="kind()"
+        (change)="kind.set($any($event.target).value)"
+      >
+        <option value="">Todos</option>
+        @for (option of kinds; track option) {
+          <option [value]="option">{{ kindLabels[option] }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label class="field__label" for="library-difficulty">Nível</label>
+      <select
+        id="library-difficulty"
+        class="select"
+        [value]="difficulty()"
+        (change)="difficulty.set($any($event.target).value)"
+      >
+        <option value="">Todos</option>
+        @for (option of difficulties; track option) {
+          <option [value]="option">{{ difficultyLabels[option] }}</option>
+        }
+      </select>
+    </div>
+  </form>
+
+  <p class="count" aria-live="polite">
+    {{ results().length }} {{ results().length === 1 ? 'entrada' : 'entradas' }}
+    @if (filtered()) {
+      · <button type="button" class="link-button" (click)="clear()">Limpar filtros</button>
+    }
+  </p>
+
+  @if (results().length > 0) {
+    <ul class="entries">
+      @for (entry of results(); track entry.id) {
+        <li class="panel entry">
+          <p class="eyebrow">
+            {{ kindLabels[entry.kind] }} · {{ technologyLabels[entry.technology] }} ·
+            {{ difficultyLabels[entry.difficulty] }}
+          </p>
+          <h2 class="entry__title">
+            <a [routerLink]="['/library', entry.id]">{{ entry.title }}</a>
+          </h2>
+          <p class="muted">{{ entry.summary }}</p>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="panel muted">
+      Nada encontrado com esses filtros. Tente outra palavra ou limpe os filtros.
+    </p>
+  }
+</div>

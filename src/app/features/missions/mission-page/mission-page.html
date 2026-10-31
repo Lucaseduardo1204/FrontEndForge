@@ -1,0 +1,129 @@
+@if (mission(); as m) {
+  @let s = status()!;
+  <div class="page">
+    <a class="back" routerLink="/missions">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar às missões
+    </a>
+
+    <header class="page__header">
+      <p class="eyebrow">Missão · {{ difficultyLabels[m.difficulty] }}</p>
+      <div class="title-row">
+        <h1>{{ m.title }}</h1>
+        @if (s.completedAt) {
+          <span class="badge badge--success">Cumprida</span>
+        } @else {
+          <span class="badge">{{ s.solved }} de {{ s.total }} tarefas</span>
+        }
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="context-heading">
+      <h2 id="context-heading" class="section__title">Contexto</h2>
+      <app-content-blocks [blocks]="m.context" />
+      <p class="objective"><strong>Objetivo:</strong> {{ m.objective }}</p>
+    </section>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="functional-heading">
+        <h2 id="functional-heading" class="panel__title">Requisitos funcionais</h2>
+        <ul class="list">
+          @for (item of m.functionalRequirements; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </section>
+      <section class="panel" aria-labelledby="constraints-heading">
+        <h2 id="constraints-heading" class="panel__title">Restrições técnicas</h2>
+        <ul class="list">
+          @for (item of m.technicalConstraints; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </section>
+      <section class="panel" aria-labelledby="acceptance-heading">
+        <h2 id="acceptance-heading" class="panel__title">Critérios de aceitação</h2>
+        <ul class="list">
+          @for (item of m.acceptanceCriteria; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </section>
+      <section class="panel" aria-labelledby="hints-heading">
+        <h2 id="hints-heading" class="panel__title">Dicas da missão (opcionais)</h2>
+        @if (hintsShown() > 0) {
+          <ol class="list">
+            @for (hint of m.hints.slice(0, hintsShown()); track $index) {
+              <li>{{ hint }}</li>
+            }
+          </ol>
+        }
+        @if (hintsShown() < m.hints.length) {
+          <button
+            type="button"
+            class="btn btn--ghost hint"
+            (click)="hintsShown.set(hintsShown() + 1)"
+          >
+            <svg lucideLightbulb aria-hidden="true"></svg>
+            Pedir dica ({{ hintsShown() + 1 }} de {{ m.hints.length }})
+          </button>
+        }
+      </section>
+    </div>
+
+    <section class="section" aria-labelledby="tasks-heading">
+      <h2 id="tasks-heading" class="section__title">Tarefas</h2>
+      @for (task of tasks(); track task.exercise.id; let i = $index) {
+        <p class="eyebrow">Tarefa {{ i + 1 }} de {{ tasks().length }}</p>
+        @if (task.exercise.kind === 'code') {
+          <article class="panel code-task" [attr.aria-labelledby]="task.exercise.id + '-title'">
+            <h3 class="code-task__title" [id]="task.exercise.id + '-title'">
+              {{ task.exercise.title }}
+              @if (task.solved) {
+                <span class="badge badge--success">Resolvida</span>
+              }
+            </h3>
+            <app-content-blocks [blocks]="task.exercise.prompt" />
+            <div class="btn-row">
+              <a class="btn btn--primary" [routerLink]="['/lab', task.exercise.id]">
+                <svg lucideFlaskConical aria-hidden="true"></svg>
+                Resolver no laboratório
+              </a>
+            </div>
+          </article>
+        } @else {
+          <app-exercise-player [exercise]="task.exercise" />
+        }
+      }
+    </section>
+
+    <section class="panel debrief" aria-labelledby="debrief-heading">
+      <h2 id="debrief-heading" class="panel__title title-row">
+        @if (s.completedAt) {
+          <svg lucideCircleCheck aria-hidden="true" class="done"></svg>
+        } @else {
+          <svg lucideLock aria-hidden="true"></svg>
+        }
+        Explicação final
+      </h2>
+      @if (s.completedAt) {
+        <app-content-blocks [blocks]="m.debrief" />
+      } @else {
+        <p class="muted">
+          A explicação completa aparece quando todas as tarefas estiverem resolvidas. Cada tarefa já
+          mostra o porquê de cada resposta e libera a própria solução depois da primeira tentativa.
+        </p>
+      }
+    </section>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Missão não encontrada</h1>
+      <p class="page__lead">Não existe uma missão com o identificador “{{ missionId() }}”.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/missions">Ver as missões</a>
+    </div>
+  </section>
+}

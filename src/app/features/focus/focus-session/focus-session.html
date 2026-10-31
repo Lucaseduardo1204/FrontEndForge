@@ -1,0 +1,157 @@
+@let s = session();
+<div class="session">
+  <header class="session__header">
+    <div class="session__goal">
+      <p class="eyebrow">Sessão em andamento</p>
+      <p class="session__objective">{{ s.objective || 'Sem objetivo definido' }}</p>
+    </div>
+    <div class="session__status">
+      <p class="session__progress">{{ doneCount() }} de {{ s.blocks.length }} blocos concluídos</p>
+      @if (s.timerEnabled) {
+        <p class="session__timer" aria-live="off">
+          {{ elapsed() }} min
+          @if (s.plannedMinutes !== null) {
+            de {{ s.plannedMinutes }}
+          }
+        </p>
+      }
+      <button type="button" class="btn" (click)="togglePause()">
+        @if (paused()) {
+          <svg lucideCirclePlay aria-hidden="true"></svg>
+          Retomar
+        } @else {
+          <svg lucideCirclePause aria-hidden="true"></svg>
+          Fazer uma pausa
+        }
+      </button>
+    </div>
+  </header>
+
+  @if (overTime() && !paused()) {
+    <p class="notice notice--info" role="status">
+      O tempo que você planejou acabou. Se quiser, vá para o resumo; se estiver rendendo, continue,
+      nada se perde.
+    </p>
+  }
+  @if (error(); as message) {
+    <p class="notice notice--danger" role="alert">{{ message }}</p>
+  }
+
+  @if (paused()) {
+    <section class="panel pause" aria-labelledby="pause-heading">
+      <h1 id="pause-heading">Pausa</h1>
+      <p class="muted">
+        Levante, beba água, olhe para longe da tela por alguns minutos. A atividade fica escondida
+        até você voltar e o tempo de pausa não conta como sessão.
+      </p>
+      <div class="btn-row">
+        <button type="button" class="btn btn--primary" (click)="togglePause()">
+          <svg lucideCirclePlay aria-hidden="true"></svg>
+          Retomar a sessão
+        </button>
+      </div>
+    </section>
+  } @else {
+    <div class="session__layout">
+      <nav class="plan" aria-label="Blocos da sessão">
+        <ol class="plan__list">
+          @for (block of s.blocks; track block.id; let i = $index) {
+            @let state = states().get(block.id);
+            <li>
+              <button
+                type="button"
+                class="plan__item"
+                [class.plan__item--current]="block.id === current().id"
+                [attr.aria-current]="block.id === current().id ? 'step' : null"
+                (click)="select(block)"
+              >
+                <span
+                  class="plan__number"
+                  [class]="'plan__number plan__number--' + state"
+                  aria-hidden="true"
+                >
+                  @if (state === 'done') {
+                    <svg lucideCheck size="14"></svg>
+                  } @else {
+                    {{ i + 1 }}
+                  }
+                </span>
+                <span class="plan__text">
+                  {{ block.title }}
+                  <span class="plan__meta">
+                    ~{{ block.estimatedMinutes }} min
+                    @if (state === 'done') {
+                      · concluído
+                    } @else if (state === 'skipped') {
+                      · pulado
+                    }
+                  </span>
+                </span>
+              </button>
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <section class="activity" aria-label="Atividade atual">
+        @let block = current();
+        <p class="activity__reason">{{ block.reason }}</p>
+
+        @switch (block.target.type) {
+          @case ('review') {
+            <app-review-page />
+          }
+          @case ('lesson') {
+            @if (block.target.type === 'lesson') {
+              <app-lesson-page [lessonId]="block.target.lessonId" />
+            }
+          }
+          @case ('exercise') {
+            @if (exercise(); as ex) {
+              @if (ex.kind === 'code') {
+                <app-lab-exercise-page [exerciseId]="ex.id" />
+              } @else {
+                <h1 class="activity__title">Prática</h1>
+                <app-exercise-player [exercise]="ex" />
+              }
+            }
+          }
+          @case ('summary') {
+            <h1 class="activity__title">Resumo final</h1>
+            <p class="muted">
+              Encerre a sessão para ver o que você demonstrou ter aprendido e registrar suas
+              anotações.
+            </p>
+          }
+        }
+
+        <div class="btn-row activity__actions">
+          @if (block.kind === 'summary') {
+            <button type="button" class="btn btn--primary" (click)="finish()">
+              <svg lucideFlag aria-hidden="true"></svg>
+              Encerrar e ver o resumo
+            </button>
+          } @else if (states().get(block.id) === 'pending') {
+            <button type="button" class="btn btn--primary" (click)="mark(block, 'done')">
+              <svg lucideCheck aria-hidden="true"></svg>
+              Concluir este bloco
+            </button>
+            <button type="button" class="btn btn--ghost" (click)="mark(block, 'skipped')">
+              <svg lucideSkipForward aria-hidden="true"></svg>
+              Pular
+            </button>
+          } @else {
+            <button type="button" class="btn" (click)="mark(block, 'pending')">
+              Reabrir este bloco
+            </button>
+          }
+          @if (block.kind !== 'summary') {
+            <button type="button" class="btn btn--ghost activity__finish" (click)="finish()">
+              Encerrar a sessão agora
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,54 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Academia</h1>
+    <p class="page__lead">
+      A formação completa em 14 fases, do funcionamento da web até um projeto final em Angular. Cada
+      fase mostra o que você vai aprender, o que ela exige antes e o projeto que fecha o ciclo.
+    </p>
+    <p class="field__hint">
+      {{ publishedPhases }} de 14 fases já têm lições publicadas. As demais mostram a introdução e
+      os tópicos e ficam marcadas como “Planejado”.
+    </p>
+  </header>
+
+  <div class="field search">
+    <label class="field__label" for="phase-search">Buscar por fase ou tópico</label>
+    <div class="search__box">
+      <svg lucideSearch size="18" aria-hidden="true"></svg>
+      <input
+        id="phase-search"
+        type="search"
+        autocomplete="off"
+        placeholder="Ex.: closures, grid, XSS"
+        aria-describedby="search-count"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+      />
+    </div>
+    <p id="search-count" class="field__hint" aria-live="polite">
+      @if (query().trim()) {
+        {{ results().length }}
+        {{ results().length === 1 ? 'fase encontrada' : 'fases encontradas' }}
+      }
+    </p>
+  </div>
+
+  @if (results().length > 0) {
+    <ol class="map" aria-label="Fases da formação">
+      @for (result of results(); track result.phase.id) {
+        <li>
+          <app-phase-map-item
+            [phase]="result.phase"
+            [state]="result.state"
+            [matchedTopics]="result.matchedTopics"
+          />
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="panel">
+      Nenhuma fase cobre “{{ query() }}”. Tente outro termo, como o nome de uma tecnologia ou
+      conceito.
+    </p>
+  }
+</div>

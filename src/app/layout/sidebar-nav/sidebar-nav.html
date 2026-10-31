@@ -1,0 +1,27 @@
+<nav class="nav" aria-label="Navegação principal">
+  @for (section of sections(); track section.label) {
+    <div class="nav__section">
+      <span class="nav__heading" [id]="navId() + '-' + $index">{{ section.label }}</span>
+      <ul class="nav__list" [attr.aria-labelledby]="navId() + '-' + $index">
+        @for (item of section.items; track item.path) {
+          <li>
+            <a
+              class="nav__link"
+              [routerLink]="item.path"
+              routerLinkActive="nav__link--active"
+              ariaCurrentWhenActive="page"
+              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+              (click)="navigated.emit()"
+            >
+              <svg [lucideIcon]="item.icon" size="18" aria-hidden="true"></svg>
+              <span class="nav__label">{{ item.label }}</span>
+              @if (item.status === 'planned') {
+                <span class="badge badge--planned">Planejado</span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</nav>

@@ -1,0 +1,52 @@
+@if (hintsShown() < hints().length) {
+  <button type="button" class="btn btn--ghost hint-button" (click)="hintRequested.emit()">
+    <svg lucideLightbulb aria-hidden="true"></svg>
+    Pedir dica ({{ hintsShown() + 1 }} de {{ hints().length }})
+  </button>
+}
+
+@if (hintsShown() > 0) {
+  <ol class="hints" aria-label="Dicas">
+    @for (hint of hints().slice(0, hintsShown()); track $index) {
+      <li class="hints__item">
+        <svg lucideLightbulb aria-hidden="true"></svg>
+        <span
+          ><strong>Dica {{ $index + 1 }}:</strong> {{ hint }}</span
+        >
+      </li>
+    }
+  </ol>
+}
+
+<!-- A plain block, not a landmark: a page with several exercises would get several identical regions. -->
+<div class="solution">
+  @switch (headingLevel()) {
+    @case (2) {
+      <h2 class="solution__title">Solução comentada</h2>
+    }
+    @default {
+      <h4 class="solution__title">Solução comentada</h4>
+    }
+  }
+  @if (unlocked() || requested()) {
+    <details class="solution__details" [open]="requested()">
+      <summary>
+        <svg lucideEye aria-hidden="true"></svg>
+        Mostrar a solução
+      </summary>
+      <app-content-blocks [blocks]="solution()" />
+    </details>
+  } @else {
+    <p class="field__hint">
+      A solução é liberada depois da sua primeira tentativa. Tentar antes, mesmo errando, ajuda a
+      fixar o conceito.
+    </p>
+    <button
+      type="button"
+      class="btn btn--ghost solution__request"
+      (click)="solutionRequested.emit()"
+    >
+      Quero ver a solução sem tentar
+    </button>
+  }
+</div>

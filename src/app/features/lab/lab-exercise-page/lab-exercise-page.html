@@ -1,0 +1,121 @@
+@if (exercise(); as ex) {
+  <div class="page lab">
+    @if (mission(); as m) {
+      <a class="back" [routerLink]="['/missions', m.id]">
+        <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+        Voltar à missão “{{ m.title }}”
+      </a>
+    } @else {
+      <a class="back" routerLink="/lab">
+        <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+        Voltar ao laboratório
+      </a>
+    }
+
+    <header class="page__header">
+      <p class="eyebrow">
+        {{ languageLabels[ex.language] }} · {{ difficultyLabels[ex.difficulty] }}
+      </p>
+      <div class="title-row">
+        <h1>{{ ex.title }}</h1>
+        @if (status().solved) {
+          <span class="badge badge--success">Resolvido</span>
+        } @else if (status().attempts > 0) {
+          <span class="badge">
+            {{ status().attempts }} {{ status().attempts === 1 ? 'tentativa' : 'tentativas' }}
+          </span>
+        }
+      </div>
+    </header>
+
+    <div class="lab__layout">
+      <div class="lab__brief">
+        <app-exercise-brief [exercise]="ex" />
+        <app-hints-solution
+          [exerciseId]="ex.id"
+          [headingLevel]="2"
+          [hints]="ex.hints"
+          [hintsShown]="hintsShown()"
+          [solution]="ex.solution"
+          [unlocked]="status().attempts > 0"
+          [requested]="solutionRequested()"
+          (hintRequested)="showHint()"
+          (solutionRequested)="solutionRequested.set(true)"
+        />
+      </div>
+
+      <section class="lab__workspace" aria-label="Área de trabalho">
+        <app-code-editor
+          [editorId]="ex.id + '-editor'"
+          [label]="'Seu código (' + languageLabels[ex.language] + ')'"
+          [(code)]="code"
+          (runRequested)="run()"
+        />
+
+        <div class="btn-row">
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="running()"
+            [attr.aria-busy]="running()"
+            (click)="run()"
+          >
+            <svg lucidePlay aria-hidden="true"></svg>
+            {{ running() ? 'Executando…' : 'Executar testes' }}
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="resetDialog.open()">
+            <svg lucideRotateCcw aria-hidden="true"></svg>
+            Restaurar código inicial
+          </button>
+        </div>
+
+        @if (ex.language === 'html') {
+          <app-html-preview />
+        }
+
+        <div aria-live="polite" class="lab__results">
+          @if (evaluation(); as evaluation) {
+            <app-exercise-feedback [evaluation]="evaluation" />
+          }
+          @if (reward(); as earned) {
+            <app-reward-notice [reward]="earned" />
+          }
+          @if (result(); as result) {
+            @if (ex.language !== 'html') {
+              <app-run-output [result]="result" />
+            }
+          } @else if (ex.language !== 'html') {
+            <p class="field__hint">
+              Nada foi executado ainda. O resultado aparece aqui depois que você executar os testes.
+            </p>
+          }
+        </div>
+        <div role="alert">
+          @if (saveError(); as error) {
+            <p class="notice notice--danger">{{ error }}</p>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <app-confirm-dialog
+    #resetDialog
+    heading="Restaurar o código inicial?"
+    message="O código no editor será substituído pelo código inicial do exercício. As tentativas já salvas continuam no seu progresso."
+    confirmLabel="Restaurar"
+    (confirmed)="resetCode()"
+  />
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Exercício não encontrado</h1>
+      <p class="page__lead">
+        Não existe um exercício de código com o identificador “{{ exerciseId() }}”.
+      </p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/lab">Ver os exercícios do laboratório</a>
+    </div>
+  </section>
+}

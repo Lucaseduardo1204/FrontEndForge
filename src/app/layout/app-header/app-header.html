@@ -1,0 +1,28 @@
+<header class="header">
+  <button
+    type="button"
+    class="btn btn--ghost btn--icon header__menu"
+    aria-label="Abrir menu de navegação"
+    aria-controls="nav-drawer"
+    [attr.aria-expanded]="menuExpanded()"
+    (click)="menuRequested.emit()"
+  >
+    <svg lucideMenu aria-hidden="true"></svg>
+  </button>
+
+  <p class="header__title">{{ pageTitle() }}</p>
+
+  <button
+    type="button"
+    class="btn btn--ghost btn--icon"
+    [attr.aria-label]="theme() === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'"
+    [title]="theme() === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'"
+    (click)="themeToggled.emit()"
+  >
+    @if (theme() === 'dark') {
+      <svg lucideSun aria-hidden="true"></svg>
+    } @else {
+      <svg lucideMoon aria-hidden="true"></svg>
+    }
+  </button>
+</header>

@@ -1,0 +1,107 @@
+.item {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+// Numbered marker on the vertical track drawn by the parent list.
+.item__marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+}
+
+.item--completed .item__marker {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.item--in-progress .item__marker {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.item--available .item__marker {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.item--planned .item__marker {
+  border-style: dashed;
+}
+
+.item__body {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-1);
+  transition: border-color var(--duration-fast) var(--easing-standard);
+
+  &:has(a:hover),
+  &:has(a:focus-visible) {
+    border-color: var(--color-border-strong);
+  }
+}
+
+.item--in-progress .item__body {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
+
+.item__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.item__title {
+  font-size: var(--font-size-lg);
+
+  a {
+    color: var(--color-text);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.item__summary {
+  color: var(--color-text-muted);
+}
+
+.item__meta,
+.item__blockers,
+.item__matches {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
+}
+
+.item__matches {
+  color: var(--color-accent-text);
+}
+
+.item__project {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+
+  svg {
+    margin-top: 0.15rem;
+  }
+}

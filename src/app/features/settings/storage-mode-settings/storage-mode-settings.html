@@ -1,0 +1,59 @@
+<section class="panel" aria-labelledby="storage-mode-heading">
+  <h2 id="storage-mode-heading" class="panel__title">Onde salvar o progresso</h2>
+
+  <fieldset class="field modes">
+    <legend class="field__label">Salvar o progresso</legend>
+
+    <label class="choice">
+      <input
+        type="radio"
+        name="storage-mode"
+        [checked]="selected() === 'local'"
+        (change)="pick('local')"
+      />
+      Neste navegador (padrão)
+    </label>
+
+    <div class="field">
+      <label class="choice">
+        <input
+          type="radio"
+          name="storage-mode"
+          [checked]="selected() === 'server'"
+          [disabled]="availability() !== 'available'"
+          [attr.aria-describedby]="
+            availability() === 'available' ? null : 'storage-mode-server-hint'
+          "
+          (change)="pick('server')"
+        />
+        No servidor desta instalação, com uma conta
+      </label>
+      @switch (availability()) {
+        @case ('checking') {
+          <p id="storage-mode-server-hint" class="field__hint" role="status">
+            Verificando se esta instalação tem servidor…
+          </p>
+        }
+        @case ('unavailable') {
+          <p id="storage-mode-server-hint" class="field__hint" role="status">
+            Esta instalação não tem o servidor do Frontend Forge rodando, então esta opção não está
+            disponível. Quem instalou pode ativá-lo pelo backend descrito no README.
+          </p>
+        }
+      }
+    </div>
+  </fieldset>
+
+  @if (failure(); as message) {
+    <p class="notice notice--danger" role="alert">{{ message }}</p>
+  }
+</section>
+
+<app-confirm-dialog
+  #switchDialog
+  heading="Trocar onde o progresso é salvo?"
+  [message]="dialogMessage()"
+  confirmLabel="Trocar e recarregar"
+  (confirmed)="confirmSwitch()"
+  (cancelled)="cancelSwitch()"
+/>

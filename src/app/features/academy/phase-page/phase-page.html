@@ -1,0 +1,119 @@
+@if (phase(); as phase) {
+  @let v = view()!;
+  <div class="page">
+    <a class="back" routerLink="/academy">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar para a Academia
+    </a>
+
+    <header class="page__header">
+      <p class="eyebrow">Fase {{ phase.order }} de 13</p>
+      <div class="title-row">
+        <h1>{{ phase.title }}</h1>
+        <app-status-badge [status]="v.state.status" />
+      </div>
+      <p class="page__lead">{{ phase.summary }}</p>
+    </header>
+
+    <section class="intro" aria-labelledby="intro-heading">
+      <h2 id="intro-heading" class="visually-hidden">Introdução</h2>
+      <app-content-blocks [blocks]="phase.introduction" />
+    </section>
+
+    <div class="overview">
+      <section class="panel" aria-labelledby="objectives-heading">
+        <h2 id="objectives-heading" class="panel__title">Ao final desta fase você vai</h2>
+        <ul class="list">
+          @for (objective of phase.objectives; track objective) {
+            <li>{{ objective }}</li>
+          }
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="requires-heading">
+        <h2 id="requires-heading" class="panel__title">Antes desta fase</h2>
+        @if (v.prerequisites.length > 0) {
+          <ul class="prereqs">
+            @for (item of v.prerequisites; track item.phase.id) {
+              <li class="prereqs__item">
+                <a [routerLink]="['/academy/phases', item.phase.id]">
+                  Fase {{ item.phase.order }}: {{ item.phase.title }}
+                </a>
+                <app-status-badge [status]="item.state.status" />
+              </li>
+            }
+          </ul>
+          <p class="field__hint">
+            Uma fase anterior só bloqueia esta quando tem lições publicadas e ainda não concluídas.
+          </p>
+        } @else {
+          <p class="muted">Nenhuma. Este é o ponto de partida.</p>
+        }
+        <h3 class="sub">Competências desenvolvidas</h3>
+        <p class="muted">{{ v.competencies.join(', ') }}</p>
+      </section>
+    </div>
+
+    <section aria-labelledby="topics-heading">
+      <h2 id="topics-heading" class="section-title">Tópicos ({{ phase.topics.length }})</h2>
+      <ul class="topics">
+        @for (topic of phase.topics; track topic) {
+          <li class="topics__item">{{ topic }}</li>
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="modules-heading" class="modules">
+      <h2 id="modules-heading" class="section-title">Módulos</h2>
+      @for (item of v.modules; track item.module.id) {
+        <app-module-card
+          [module]="item.module"
+          [state]="item.state"
+          [lessons]="item.lessons"
+          [prerequisites]="item.prerequisites"
+          [competencies]="item.competencies"
+        />
+      } @empty {
+        <div class="panel planned">
+          <p class="planned__title">
+            <svg lucideConstruction size="18" aria-hidden="true"></svg>
+            Conteúdo em produção
+          </p>
+          <p class="muted">
+            As lições, exercícios e a avaliação desta fase ainda não foram publicados. A introdução
+            e os tópicos acima mostram o que ela vai cobrir.
+          </p>
+        </div>
+      }
+    </section>
+
+    <section class="panel" aria-labelledby="project-heading">
+      <h2 id="project-heading" class="panel__title title-row">
+        Projeto da fase
+        @if (!phase.projectId) {
+          <span class="badge badge--planned">Planejado</span>
+        }
+      </h2>
+      <p>{{ phase.projectBrief }}</p>
+      @if (phase.projectId) {
+        <div class="btn-row">
+          <a class="btn" [routerLink]="['/projects', phase.projectId]">Abrir o projeto guiado</a>
+        </div>
+      } @else {
+        <p class="field__hint">
+          O projeto guiado, com etapas, checklist e rubrica, ainda está em produção.
+        </p>
+      }
+    </section>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Fase não encontrada</h1>
+      <p class="page__lead">Não existe uma fase com o identificador “{{ phaseId() }}”.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/academy">Ver todas as fases</a>
+    </div>
+  </section>
+}

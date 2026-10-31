@@ -1,0 +1,117 @@
+<section class="panel" aria-labelledby="data-heading" [attr.aria-busy]="busy()">
+  <h2 id="data-heading" class="panel__title">Seus dados de progresso</h2>
+
+  @if (serverMode) {
+    <div class="notice notice--warning">
+      <svg lucideTriangleAlert aria-hidden="true"></svg>
+      <p>
+        O progresso fica salvo <strong>no servidor desta instalação</strong>, na sua conta. Ele não
+        tem cópia de segurança automática: exporte um arquivo de tempos em tempos.
+      </p>
+    </div>
+  } @else {
+    <div class="notice notice--warning">
+      <svg lucideTriangleAlert aria-hidden="true"></svg>
+      <p>
+        O progresso fica salvo <strong>apenas neste navegador</strong>. Isso não é um backup: limpar
+        os dados do site, usar outro navegador ou outro dispositivo faz o progresso desaparecer.
+        Exporte um arquivo de tempos em tempos.
+      </p>
+    </div>
+  }
+
+  @if (signInRequired()) {
+    <p class="notice notice--info" role="status">
+      Entre na sua conta (acima) para carregar e salvar o progresso.
+    </p>
+  } @else if (loadError(); as error) {
+    <div class="notice notice--danger" role="alert">
+      <svg lucideCircleAlert aria-hidden="true"></svg>
+      <p>
+        <strong>Não foi possível ler o progresso salvo.</strong> {{ error }} Nada foi apagado e
+        nenhuma atividade será salva até você importar um arquivo válido ou apagar o progresso.
+      </p>
+    </div>
+  }
+
+  <div class="data-actions">
+    <div class="data-action">
+      <h3>Exportar</h3>
+      <p class="field__hint">Baixa um arquivo JSON com todo o seu progresso.</p>
+      <button
+        type="button"
+        class="btn"
+        [disabled]="busy() || loadError() !== null"
+        (click)="exportProgress()"
+      >
+        <svg lucideDownload aria-hidden="true"></svg>
+        Exportar progresso
+      </button>
+    </div>
+
+    <div class="data-action field">
+      <h3><label for="import-file">Importar</label></h3>
+      <p id="import-hint" class="field__hint">
+        Substitui o progresso atual pelo de um arquivo exportado. Você confirma antes.
+      </p>
+      <input
+        id="import-file"
+        class="file-input"
+        type="file"
+        accept="application/json,.json"
+        [disabled]="busy()"
+        [attr.aria-invalid]="importError() !== null"
+        [attr.aria-describedby]="importError() ? 'import-hint import-error' : 'import-hint'"
+        (change)="onFileSelected($event)"
+      />
+      @if (importError(); as error) {
+        <p id="import-error" class="field-error" role="alert">{{ error }}</p>
+      }
+    </div>
+
+    <div class="data-action">
+      <h3>Apagar</h3>
+      <p class="field__hint">Remove todo o progresso deste navegador. Não pode ser desfeito.</p>
+      <button type="button" class="btn btn--danger" [disabled]="busy()" (click)="requestReset()">
+        <svg lucideTrash aria-hidden="true"></svg>
+        Apagar progresso
+      </button>
+    </div>
+  </div>
+
+  <!-- Live regions stay in the DOM (even when empty) so screen readers announce changes. -->
+  <div class="feedback">
+    <div role="status" aria-live="polite">
+      @if (success(); as message) {
+        <p class="notice notice--success">
+          <svg lucideCircleCheck aria-hidden="true"></svg>
+          {{ message }}
+        </p>
+      }
+    </div>
+    <div role="alert">
+      @if (failure(); as message) {
+        <p class="notice notice--danger">
+          <svg lucideCircleAlert aria-hidden="true"></svg>
+          {{ message }}
+        </p>
+      }
+    </div>
+  </div>
+</section>
+
+<app-confirm-dialog
+  #importDialog
+  heading="Substituir o progresso atual?"
+  message="O progresso deste navegador será trocado pelo do arquivo importado. Exporte o atual antes, se quiser guardá-lo."
+  confirmLabel="Substituir progresso"
+  (confirmed)="confirmImport()"
+/>
+
+<app-confirm-dialog
+  #resetDialog
+  heading="Apagar todo o progresso?"
+  message="Lições, tentativas, revisões, XP e conquistas deste navegador serão removidos. Essa ação não pode ser desfeita."
+  confirmLabel="Apagar tudo"
+  (confirmed)="confirmReset()"
+/>

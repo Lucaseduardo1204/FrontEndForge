@@ -1,0 +1,154 @@
+@if (project(); as p) {
+  @let s = status()!;
+  <div class="page">
+    <a class="back" routerLink="/projects">
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+      Voltar aos projetos
+    </a>
+
+    <header class="page__header">
+      @if (phase(); as ph) {
+        <p class="eyebrow">
+          Projeto da
+          <a class="crumb" [routerLink]="['/academy/phases', ph.id]">
+            fase {{ ph.order }} · {{ ph.title }}
+          </a>
+        </p>
+      }
+      <div class="title-row">
+        <h1>{{ p.title }}</h1>
+        @if (s.completedAt) {
+          <span class="badge badge--success">Concluído</span>
+        } @else if (s.started) {
+          <span class="badge">Em andamento</span>
+        }
+      </div>
+      <p class="page__lead">
+        Você constrói o projeto no seu computador. A plataforma guia as etapas, verifica
+        automaticamente o que dá para verificar e registra a sua autoavaliação.
+      </p>
+      <dl class="summary">
+        <div>
+          <dt>Verificação automática</dt>
+          <dd>
+            @if (s.lastCheck; as check) {
+              {{ check.passed ? 'Passando' : 'Com falhas' }}
+            } @else {
+              Ainda não executada
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Checklist</dt>
+          <dd>{{ s.checkedCount }} de {{ s.checklistTotal }}</dd>
+        </div>
+        <div>
+          <dt>Autoavaliação</dt>
+          <dd>{{ s.assessedCount }} de {{ s.rubricTotal }}</dd>
+        </div>
+      </dl>
+    </header>
+
+    @if (saveError(); as error) {
+      <p class="notice notice--danger" role="alert">
+        {{ error }}
+        @if (error.includes('Configurações')) {
+          <a routerLink="/settings">Abrir configurações</a>
+        }
+      </p>
+    }
+
+    <app-project-brief [project]="p" />
+
+    <section class="section" aria-labelledby="steps-heading">
+      <h2 id="steps-heading" class="section__title">Etapas</h2>
+      <p class="muted">
+        O checklist é o seu registro: marque um item quando ele estiver feito de verdade.
+      </p>
+      <app-project-steps
+        [steps]="p.steps"
+        [checked]="checkedItems()"
+        (changed)="onChecklist($event)"
+      />
+    </section>
+
+    <section class="section panel" aria-labelledby="check-heading">
+      <h2 id="check-heading" class="section__title">Verificação automática</h2>
+      <app-project-auto-check [project]="p" />
+    </section>
+
+    <section class="section" aria-labelledby="rubric-heading">
+      <h2 id="rubric-heading" class="section__title">Autoavaliação</h2>
+      <p class="muted">
+        Escolha, com honestidade, o nível que descreve o seu projeto em cada critério. A rubrica é
+        para você enxergar onde melhorar: ela não vale XP nem muda nada se você escolher níveis mais
+        baixos.
+      </p>
+      <app-project-rubric
+        [rubric]="p.rubric"
+        [assessment]="assessment()"
+        (changed)="onRubric($event)"
+      />
+    </section>
+
+    <section class="panel completion" aria-labelledby="completion-heading">
+      @if (s.completedAt; as date) {
+        <h2 id="completion-heading" class="panel__title title-row">
+          <svg lucideCircleCheck aria-hidden="true" class="done"></svg>
+          Projeto concluído
+        </h2>
+        <p>Concluído em {{ date | date: "d 'de' MMMM 'de' y" }}.</p>
+      } @else {
+        <h2 id="completion-heading" class="panel__title title-row">
+          <svg lucideListChecks aria-hidden="true"></svg>
+          Conclusão
+        </h2>
+        <ul class="list">
+          @for (criterion of p.completionCriteria; track criterion) {
+            <li>{{ criterion }}</li>
+          }
+        </ul>
+        @if (s.missing.length > 0) {
+          <p class="muted">Falta:</p>
+          <ul class="list">
+            @for (item of s.missing; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        }
+        <div class="btn-row">
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="s.missing.length > 0 || completing()"
+            [attr.aria-busy]="completing()"
+            (click)="complete()"
+          >
+            Concluir projeto
+          </button>
+        </div>
+      }
+      <div aria-live="polite">
+        @if (reward(); as earned) {
+          <app-reward-notice [reward]="earned" />
+        }
+      </div>
+      <h3 class="sub">Próximos passos sugeridos</h3>
+      <ul class="list">
+        @for (step of p.nextSteps; track step) {
+          <li>{{ step }}</li>
+        }
+      </ul>
+    </section>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Projeto não encontrado</h1>
+      <p class="page__lead">Não existe um projeto com o identificador “{{ projectId() }}”.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/projects">Ver os projetos</a>
+    </div>
+  </section>
+}

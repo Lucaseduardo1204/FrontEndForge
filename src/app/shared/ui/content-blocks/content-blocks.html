@@ -1,0 +1,86 @@
+@for (block of blocks(); track $index) {
+  @switch (block.type) {
+    @case ('paragraph') {
+      <p class="prose">{{ block.text }}</p>
+    }
+    @case ('list') {
+      @if (block.ordered) {
+        <ol class="prose list">
+          @for (item of block.items; track $index) {
+            <li>{{ item }}</li>
+          }
+        </ol>
+      } @else {
+        <ul class="prose list">
+          @for (item of block.items; track $index) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      }
+    }
+    @case ('code') {
+      <figure class="code">
+        <figcaption class="code__caption">
+          <span>{{ block.caption ?? 'Exemplo' }}</span>
+          <span class="code__language">{{ block.language }}</span>
+        </figcaption>
+        <!-- Focusable so keyboard users can scroll long lines horizontally. -->
+        <pre
+          class="code__body"
+          tabindex="0"
+          [attr.aria-label]="'Código: ' + (block.caption ?? block.language)"
+        ><code>{{ block.code }}</code></pre>
+      </figure>
+    }
+    @case ('table') {
+      <div class="table-wrap" tabindex="0" [attr.aria-label]="block.caption">
+        <table class="table">
+          <caption>
+            {{
+              block.caption
+            }}
+          </caption>
+          <thead>
+            <tr>
+              @for (header of block.headers; track $index) {
+                <th scope="col">{{ header }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of block.rows; track $index) {
+              <tr>
+                @for (cell of row; track $index; let first = $first) {
+                  @if (first) {
+                    <th scope="row">{{ cell }}</th>
+                  } @else {
+                    <td>{{ cell }}</td>
+                  }
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    @case ('callout') {
+      <div class="notice callout" role="note" [class]="'notice--' + toneClass(block.tone)">
+        @switch (block.tone) {
+          @case ('warning') {
+            <svg lucideTriangleAlert aria-hidden="true"></svg>
+          }
+          @case ('security') {
+            <svg lucideShieldAlert aria-hidden="true"></svg>
+          }
+          @default {
+            <svg lucideInfo aria-hidden="true"></svg>
+          }
+        }
+        <div>
+          <p class="callout__title">{{ block.title }}</p>
+          <p>{{ block.text }}</p>
+        </div>
+      </div>
+    }
+  }
+}

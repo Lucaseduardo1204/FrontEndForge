@@ -1,0 +1,122 @@
+@if (summary(); as s) {
+  <div class="page summary">
+    <header class="page__header">
+      <p class="eyebrow">Sessão encerrada</p>
+      <h1>Resumo da sessão</h1>
+      @if (session()?.objective; as objective) {
+        <p class="page__lead">Objetivo: {{ objective }}</p>
+      }
+    </header>
+
+    <section class="panel" aria-labelledby="learned-heading">
+      <h2 id="learned-heading" class="panel__title">Aprendizagem demonstrada</h2>
+      @if (demonstrated()) {
+        <dl class="stats">
+          <div class="stats__item">
+            <dt>Exercícios resolvidos pela primeira vez</dt>
+            <dd>{{ s.exercisesSolved.length }}</dd>
+          </div>
+          <div class="stats__item">
+            <dt>Respostas certas</dt>
+            <dd>
+              {{ s.correctAnswers }} <span>de {{ s.correctAnswers + s.wrongAnswers }}</span>
+            </dd>
+          </div>
+          <div class="stats__item">
+            <dt>Conceitos revisados com acerto</dt>
+            <dd>{{ s.conceptsReviewed.length }}</dd>
+          </div>
+          <div class="stats__item">
+            <dt>XP nesta sessão</dt>
+            <dd>{{ s.xp }}</dd>
+          </div>
+        </dl>
+        @if (s.exercisesSolved.length > 0) {
+          <h3 class="sub">Resolvidos</h3>
+          <ul class="list">
+            @for (title of s.exercisesSolved; track title) {
+              <li><svg lucideCircleCheck size="14" aria-hidden="true"></svg>{{ title }}</li>
+            }
+          </ul>
+        }
+        @if (s.conceptsReviewed.length > 0) {
+          <h3 class="sub">Revisados</h3>
+          <p class="muted">{{ s.conceptsReviewed.join(', ') }}</p>
+        }
+        @if (s.lessonsCompleted.length > 0) {
+          <h3 class="sub">Lições concluídas</h3>
+          <p class="muted">{{ s.lessonsCompleted.join(', ') }}</p>
+        }
+        @if (s.achievements.length > 0) {
+          <h3 class="sub">Conquistas</h3>
+          <ul class="list">
+            @for (title of s.achievements; track title) {
+              <li><svg lucideAward size="14" aria-hidden="true"></svg>{{ title }}</li>
+            }
+          </ul>
+        }
+      } @else {
+        <p class="muted">
+          Nenhuma resposta ou lição concluída foi registrada nesta sessão. Ler também conta, mas o
+          que fixa o conteúdo é praticar: na próxima, tente terminar com um exercício.
+        </p>
+      }
+      <p class="time">
+        Tempo de sessão: {{ s.minutes }} min, sem contar pausas · {{ s.blocksDone }}
+        {{ s.blocksDone === 1 ? 'bloco concluído' : 'blocos concluídos' }}
+        @if (s.blocksSkipped > 0) {
+          · {{ s.blocksSkipped }} {{ s.blocksSkipped === 1 ? 'pulado' : 'pulados' }}
+        }
+      </p>
+    </section>
+
+    <section class="panel" aria-labelledby="notes-heading">
+      <h2 id="notes-heading" class="panel__title">
+        <label for="session-notes">O que você aprendeu nesta sessão?</label>
+      </h2>
+      <p id="notes-hint" class="field__hint">
+        Escreva com suas palavras. Explicar o que aprendeu é uma das formas mais eficazes de fixar o
+        conteúdo. Fica salvo junto com a sessão.
+      </p>
+      <textarea
+        id="session-notes"
+        class="notes"
+        rows="5"
+        [formControl]="notes"
+        [attr.maxlength]="maxLength"
+        aria-describedby="notes-hint"
+        (input)="saved.set(false)"
+      ></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn" [disabled]="!notes.dirty" (click)="saveNotes()">
+          Salvar anotações
+        </button>
+        <p class="muted" role="status">
+          @if (saved()) {
+            Anotações salvas.
+          }
+        </p>
+      </div>
+      @if (error(); as message) {
+        <p class="notice notice--danger" role="alert">{{ message }}</p>
+      }
+    </section>
+
+    <app-next-activity-card [activity]="next()" />
+
+    <div class="btn-row">
+      <a class="btn" routerLink="/focus">Nova sessão de foco</a>
+      <a class="btn btn--ghost" routerLink="/">Voltar à central de comando</a>
+    </div>
+  </div>
+} @else {
+  <section class="page" aria-labelledby="missing-heading">
+    <header class="page__header">
+      <h1 id="missing-heading">Sessão não encontrada</h1>
+      <p class="page__lead">Essa sessão não existe neste navegador.</p>
+    </header>
+    <div class="btn-row">
+      <a class="btn btn--primary" routerLink="/focus">Começar uma sessão</a>
+    </div>
+  </section>
+}

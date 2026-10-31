@@ -1,0 +1,91 @@
+<div class="page setup">
+  <header class="page__header">
+    <h1>Sessão de foco</h1>
+    <p class="page__lead">
+      Escolha quanto tempo você tem. A plataforma sugere uma combinação de revisão, conteúdo novo e
+      prática; você pode pular qualquer bloco. No fim, o resumo mostra o que você demonstrou ter
+      aprendido, e não só quanto tempo passou.
+    </p>
+  </header>
+
+  <form class="panel form" [formGroup]="form" (ngSubmit)="start()" novalidate>
+    <fieldset class="times">
+      <legend class="field__label">Quanto tempo você tem agora?</legend>
+      @for (option of timeOptions; track option.value) {
+        <label class="time">
+          <input type="radio" formControlName="minutes" [value]="option.value" />
+          <span>{{ option.label }}</span>
+        </label>
+      }
+    </fieldset>
+
+    <div class="field">
+      <label class="field__label" for="objective">Objetivo da sessão (opcional)</label>
+      <input
+        id="objective"
+        class="text-input"
+        type="text"
+        formControlName="objective"
+        [attr.maxlength]="maxLength"
+        [placeholder]="suggestion()"
+        [attr.aria-invalid]="submitted() && form.controls.objective.invalid"
+        [attr.aria-describedby]="
+          submitted() && form.controls.objective.invalid
+            ? 'objective-hint objective-error'
+            : 'objective-hint'
+        "
+      />
+      <p id="objective-hint" class="field__hint">
+        Uma frase sobre o que você quer conseguir. Ela aparece durante a sessão e no resumo.
+      </p>
+      @if (submitted() && form.controls.objective.hasError('maxlength')) {
+        <p id="objective-error" class="field-error" role="alert">
+          Use no máximo {{ maxLength }} caracteres (agora são
+          {{ form.controls.objective.value.length }}).
+        </p>
+      }
+    </div>
+
+    <label class="choice">
+      <input type="checkbox" formControlName="timer" />
+      Mostrar o tempo decorrido durante a sessão
+    </label>
+
+    <section class="preview" aria-labelledby="plan-heading">
+      <h2 id="plan-heading" class="preview__title">
+        Plano sugerido · cerca de {{ totalMinutes() }} min
+      </h2>
+      <ol class="blocks">
+        @for (block of plan().blocks; track block.id) {
+          <li class="blocks__item">
+            <span class="blocks__title">{{ block.title }}</span>
+            <span class="blocks__meta">~{{ block.estimatedMinutes }} min · {{ block.reason }}</span>
+          </li>
+        }
+      </ol>
+      @if (plan().omitted.length > 0) {
+        <ul class="omitted">
+          @for (item of plan().omitted; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (error(); as message) {
+      <p class="notice notice--danger" role="alert">{{ message }}</p>
+    }
+
+    <div class="btn-row">
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="starting()"
+        [attr.aria-busy]="starting()"
+      >
+        <svg lucidePlay aria-hidden="true"></svg>
+        Começar a sessão
+      </button>
+    </div>
+  </form>
+</div>
